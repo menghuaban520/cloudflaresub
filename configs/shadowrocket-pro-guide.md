@@ -1,149 +1,131 @@
-# Shadowrocket Pro v4.1 使用说明
+# Shadowrocket Pro v5.0 使用与验收
 
-目标：**国内尽量 DIRECT，国外统一走 Shadowrocket 首页当前节点；住宅/普通 Reality 与 Hysteria2 全部手动切换；不自动换 IP；加强开屏广告拦截，但不启用 MITM；针对当前 Wi-Fi 的路由器 DNS 泄漏做最小修正。**
+更新时间：2026-09-08。目标：**国内已识别服务直连，国外及未匹配服务使用首页当前节点；DNS 路径加固；失败不擅自改走直连；兼顾移动网络与 Hysteria2。**
 
-## 主配置
+这不是“完全匿名”或“绝对零泄漏”保证。保留 v4.1 的手动选节点决定，不增加自动测速、负载均衡或随机回退。节点、订阅、账号和密码均未改动。
 
-推荐使用 GitHub Raw：
+## 先让新版生效
 
-`https://raw.githubusercontent.com/menghuaban520/cloudflaresub/main/configs/shadowrocket-pro.conf`
+主配置地址不变：
 
-Cloudflare 只保留为可选静态镜像：
+```text
+https://raw.githubusercontent.com/menghuaban520/cloudflaresub/main/configs/shadowrocket-pro.conf
+```
 
-`https://091329.xyz/shadowrocket-pro.conf`
+先保留原配置副本。Shadowrocket 中更新此配置，确认文件开头为 `Shadowrocket Pro v5.0`；选择它使其显示勾选，首页“全局路由”选择“配置”。更新/编译规则集后断开重连。下载或编译出错时，先使用原来的可用配置，不能把“没有报错截图”当作已生效。
 
-Shadowrocket：`配置 -> 右上角 + -> 粘贴 URL -> 下载 -> 点配置使其出现 ✓`，首页 **全局路由** 选择 **配置**。
+`public/shadowrocket-pro.conf` 与主配置保持逐字节相同；这只是仓库中的静态镜像文件，**不代表 Cloudflare 站点已经重新部署**。以 GitHub 主配置为准。
 
-## 节点
+## 手机上必须核对的开关
 
-`FINAL,PROXY` 永远跟随首页当前选中的节点，没有 url-test / fallback / load-balance。
+这些是 App / iOS 设置，不能假设下载一个 `.conf` 就全部设置好了。名称以当前版本界面为准。
 
-推荐手动顺序：
+| 位置 | 本方案要求 / 注意事项 |
+| --- | --- |
+| 设置 → 隧道 | 开启“包括所有网络”和其中的“包括本地网络”，让路由器 DNS 也进入隧道处理。包括本地网络不等于局域网必须走远端节点：配置内的私网 DIRECT 规则仍保留。 |
+| 设置 → UDP | 开启“启用转发”。节点本身也必须支持 UDP；本方案只拒绝无法通过目标代理转发的 UDP。 |
+| 设置 → 按需求连接 | 需要持续保护时使用“始终开启”，关闭“睡眠时断开”；它是自动连接措施，不是已经验证的永久断网锁。 |
+| 首页 → 全局路由 | 使用“配置”，不要选“直连”；保持“启用回退”关闭，避免意外改变出口。 |
+| 节点 TLS 设置 | 不为解决报错而打开“跳过证书验证”。本配置不安装根证书、不启用 MITM。 |
 
-1. 日常住宅：`住宅IP | 搬瓦工 | 主节点 (Reality)`
-2. 住宅主节点不稳：`住宅IP | 搬瓦工 | 移动网络备用 (Hysteria2)`
-3. 要最高速度：`搬瓦工 | 主节点 (Reality)`
-4. 普通主节点不稳：`搬瓦工 | 移动网络备用 (Hysteria2)`
+“强制路由”是另一项路由优先级设置，不等价于“包括所有网络”，不能用它替代上面的验收。不要在没有测试时随意叠加所有选项。
 
-不要打开 **全局路由 -> 启用回退**，否则节点失败后 Shadowrocket 可能自行换出口。
+追求更严格的浏览器 IP 隐私时，可另开“禁用 STUN”，然后检查网页通话是否正常；它可能破坏 WebRTC 语音、视频及点对点功能。本配置不伪造 STUN 地址或靠修改检测结果“过关”。“包括 APNs”“包括蜂窝服务”涉及通知、电话等兼容性，不作为默认全开项；即便开启，iOS 仍存在必要系统流量例外。
 
-## v4 的开屏广告策略
+## 节点策略：保留手动与住宅优先习惯
 
-v4/v4.1 选择的是“稳妥加强”，不是 MITM 暴力模式。
+日常手动选住宅 Reality；它不稳定时换住宅 Hysteria2。更重视速度时再选普通 Reality，移动网络不稳时换普通 Hysteria2。配置的 `PROXY` 始终跟随首页选择，不替你决定何时换 IP。
 
-第一层是少量高置信度的开屏/广告专用域名，例如头条、快手、微博、喜马拉雅、腾讯音乐、小红书、小米、Vivo、HeyTap 等广告接口。它们使用：
+两项失败保护已经写入：
 
-`REJECT,pre-matching`
+- `udp-policy-not-supported-behaviour = REJECT`：应代理的 UDP 遇到不支持 UDP 的策略时拒绝转发，而非借本地网络直连；不会一刀切禁止正常 HY2 / QUIC。
+- `close-if-proxy-chain-missing = true`：代理链的中转条目缺失时拒绝连接，而非跳过中转。这不是对每一种节点宕机、App 崩溃或系统断开情形都有效的总开关。
 
-`pre-matching` 会在普通规则匹配之前快速拒绝请求，适合这种用途明确的广告域名，能减少开屏广告请求傻等超时的时间。因为预匹配优先级很高，所以这里只放非常明确的广告端点，不拿模糊关键词乱杀。
+## DNS：把三种不同用途分开
 
-第二层按 Blackmatrix7 对 Shadowrocket 的建议，同时使用：
+| 用途 | 配置 | 预期路径 |
+| --- | --- | --- |
+| 国内已匹配域名解析 | `direct-dns-server` | AliDNS / DNSPod 的 HTTPS DNS，本地直连上游，保留国内 CDN 调度。 |
+| 客户端需要解析的其余请求与备用解析 | `dns-server` / `fallback-dns-server` | Cloudflare / Quad9 DoH，使用 `#proxy` 明确经首页当前节点。 |
+| 代理服务器自身的域名引导 | `proxy-dns-server` | 国内加密 DNS；必须能在代理尚未建立时工作，不能依赖自身代理。 |
 
-- `AdvertisingLite_Domain.list`（DOMAIN-SET）
-- `AdvertisingLite.list`（RULE-SET）
+普通代理目标默认仍把 hostname 交给代理服务器解析。**节点端用什么递归 DNS、是否记录查询、住宅代理是否自行转发 DNS，不能由这份客户端配置证明或完全控制。** `proxy-dns-server` 不是“所有国外网站的 DNS”。
 
-Domain Set 先处理大量域名规则，完整 Rule Set 再补关键词/IP等条目。最后再用 ACL4SSR `BanProgramAD` 补一层 App 内广告。
+已关闭系统 DNS 回退、直连 DNS 使用系统解析以及直连解析失败后改变目标连接策略。国内 DNS 失败时仍可能使用经代理的备用 DoH，目标连接仍按 DIRECT；这是解析上游回退，不是把国内网站全部改走国外。
 
-**没有 `[MITM]`、没有证书、没有 HTTPS 解密。** 所以如果某个 App 把广告内容和正常接口放在同一个第一方域名、只靠 URL 路径区分，v4.1 不会冒险去拆 HTTPS；这类广告可能仍然存在。这是 A 方案为了稳定性刻意留下的边界。
+`[Host]` 为 DNS 服务域名提供固定引导 IP，但 DoH URL 保留域名和 TLS 证书校验。DNSPod 使用 `https://doh.pub/dns-query`，不是已不再推荐的字面 IP URL。固定地址未来可能变动，需要维护；两家国内上游用于互备。不要为绕过地址失效而关闭 TLS 校验。
 
-也没有使用 `REJECT-DROP`：静默丢包容易让 App 等超时，开屏场景反而可能更慢；这里继续使用能快速失败的普通 `REJECT`。
+### Wi-Fi、移动网络与 IPv6
 
-## 国内分流优化
+旧版只补 `192.168.1.1:53`，没有解决所有网络中的 DNS 路径。新版不再把整片私网从 TUN 排除；使用 `hijack-dns = :53` 接管进入隧道的标准 DNS，补入双栈路由以及已知路由器的 `192.168.1.1/32`、`fe80::1/128`。
 
-顺序现在是：
+开启 IPv6 并优先 IPv4，是让双栈进入规则体系；`ipv6=false` 不等于关闭 iOS 的所有 IPv6 通信。更具体的本地路由仍可能影响实际接管，因此手机侧开关和实测不能省略。节点不支持某种转发时，应失败，而不是暴露本地出口来“保连通”。
 
-1. `china-core.list` 高频国内服务 -> `DIRECT`
-2. `ChinaMax_Domain.list` -> `DIRECT`
-3. `ChinaMax.list` 补 USER-AGENT / IP 等 -> `DIRECT`
-4. `GEOIP,CN,DIRECT,no-resolve`
-5. 其余 -> `FINAL,PROXY`
+标准 853 端口的非指定 DNS 连接优先使用 PROXY。任意 App 的内置 DoH、DoQ、自建端口，以及 iOS 例外流量不可能靠一条 53 端口规则全部识别。这里不宣称覆盖了它们。
 
-专用的 ChinaMax Domain Set 放在完整 Rule Set 前面，让普通域名请求优先走更直接的域名匹配；完整列表只负责补长尾类型。
+## 分流与广告改进
 
-## DNS
+内嵌常用国内、国外域名作为远程列表不可用时的基础规则；增加 Google 中国域名、Grok/X、Twitter 图片、TikTok 国际域名等保护，避免它们先落入国内大表。用户覆盖表优先于普通广告拦截，DNS 安全路由与局域网规则在其前面。
 
-本地需要解析的 DIRECT 流量统一使用：
+国内使用内嵌规则、自有 `china-core.list` 与 ChinaMax 域名集；IP 流量由 `GEOIP,CN,DIRECT,no-resolve` 补充。移除整个 ChinaMax 规则表，减少重复和 USER-AGENT 类广泛直连。未知域名不会为了匹配 GEOIP 额外触发本地解析，最终策略仍是 PROXY。
 
-- AliDNS DoH
-- DNSPod / doh.pub DoH
+域名分类不等同于每个实际服务器的物理国家；跨国服务、共享云域名、CDN 和 GEOIP 数据都可能有误差。国内服务故意直连时显示本地公网 IP 是预期行为，不叫“代理泄漏”。
 
-并保持：
+保留明确广告域名和 AdvertisingLite 域名集/补充规则；去掉 `pre-matching`，允许用户覆盖纠正误拦；去掉额外重叠的 BanProgramAD。没有证书、脚本或 HTTPS 解密，因此不承诺去掉所有开屏或共域名广告。上游列表仍可能误拦，且内容随上游更新。
 
-- `dns-direct-system = false`
-- `dns-fallback-system = false`
-- `dns-direct-fallback-proxy = false`
+规则源统一使用 GitHub Raw，减少第三方分发依赖。这不是所有网络下的速度保证；大规则集首次下载可能较慢，主配置更新与规则集更新都需检查。不要用“更新间隔越短”换取频繁唤醒与重复下载。
 
-国内解析失败不会突然绕住宅代理，也不会主动回退到 iOS / 中国移动系统 DNS。代理类域名保留 hostname，正常交给代理端处理。
+纠错文件保持原位置：
 
-只接管指定 DNS 的 53 端口，不使用暴力 `*:53`。IPv6 暂时关闭，减少双栈出口变量。
+```text
+configs/rules/user-proxy.list   # 国外服务误直连时加入
+configs/rules/user-direct.list  # 国内服务误代理或明确正常域名被拦时加入
+```
 
-## v4.1：当前 Wi-Fi 的 DNS 防漏修正
+每行使用 `DOMAIN,完整域名` 或 `DOMAIN-SUFFIX,域名后缀`，不带策略。不要为修一个广告误拦就把整家 CDN 或所有域名放行。修改后更新对应规则集。
 
-当前实测 Wi-Fi 自动下发的 DNS 是：
+## 高标准验收：目标与已经做过的检查分开
 
-- `192.168.1.1`
-- `fe80::1`
+**已做：** 18 项离线结构/策略回归测试，覆盖 DNS 路径设置、禁止危险回退、双栈路由字段、规则顺序、域名边界、核心域名缺少远程列表时的匹配，以及两份配置一致性。测试不调用 Shadowrocket 内核，不模拟远程列表、GEOIP 或真实 DNS。运行命令：
 
-手动把 Wi-Fi DNS 改成 `1.1.1.1 + 8.8.8.8` 后，DNS 检测中的 China Mobile 解析器消失，因此可以确认泄漏来自“路由器 DNS / 系统 DNS 路径”，而不是 AliDNS/DNSPod 本身。
+```sh
+python3 tests/shadowrocket_config_test.py
+```
 
-v4.1 先只修最明确、风险最低的 IPv4 路径：
+**未做：** 你的 iPhone 导入/编译、节点连通性、真实出口抓包、吞吐量、延迟、耗电及断线泄漏测试。以下是上线验收要求，不是已取得的成绩：
 
-`192.168.1.1/32`
+| 项目 | 验收要求 |
+| --- | --- |
+| 分流 | 国内常用 App 日志应为 DIRECT；ChatGPT、Google、GitHub、X、TikTok 为 PROXY。广告专用请求为 REJECT。抽查 IPv4、IPv6、域名与直接 IP 请求。 |
+| DNS | Wi-Fi DNS 恢复“自动”，在 `dnsleaktest.com` 做 Extended test，并在 `browserleaks.com/dns` 交叉检查；切换蜂窝网络后重复。国外测试不应出现本地运营商路径；出现时必须按日志/抓包定位，不能仅凭解析器国旗判断。 |
+| WebRTC | 使用 `browserleaks.com/webrtc` 检查公开地址，不应暴露本地真实公网 IPv4/IPv6。局域网地址、mDNS 名称与公网泄漏不是同一概念。 |
+| 失败行为 | 保持 VPN 隧道开启，测试一个不可用的代理：国外请求应失败，而非改用本地公网出口。代理链丢失、UDP 不支持也分别测试。手动关掉 VPN 是不同场景。 |
+| 网络切换 | 在两种网络间切换、锁屏唤醒、App 重启及设备重启后重复 DNS/IP 检查。建议至少完成 10 次切换；每次均不得把国外连接变成本地直连。 |
+| 速度与稳定 | 同一节点、同一网络与旧版对照，记录真实 HTTPS 首包、成功率和下载；建议抽测 100 次连接并连续使用 30 分钟，连接成功率目标不低于 99%，持续流量无异常断流。延迟/吞吐不能由配置文件凭空保证。 |
+| 日常兼容 | 检查支付、验证码、视频通话、推送、AirPlay/CarPlay 和热点认证。失败时记录对应规则与设置，逐项调整，不用全局直连掩盖问题。 |
 
-通过：
+检测网页只能覆盖网页触发的流量。更严格的结论还需要在可信 Wi-Fi 路由器/网关抓包检查 DNS 出站，并结合代理服务器日志核对；没有这一层证据，不宣称整台设备已“零泄漏”。诊断日志可能含访问域名和节点信息，分享前先打码，不把完整原始日志提交到公开仓库。
 
-`tun-included-routes = 192.168.1.1/32`
+## 能力边界与回退
 
-把这个单独地址拉回 Shadowrocket TUN，然后：
+Apple 明确说明，包括所有网络仍保留 DHCP、热点认证、部分蜂窝服务、配对设备等例外。VPN 停止或系统重启的空窗不能靠本文件作绝对保证。账号、Cookie、定位权限、浏览器指纹与代理服务商日志也不受这份配置消除。
 
-`hijack-dns = 192.168.1.1:53,...`
+v4.1 历史版本可在下面的固定提交读取，**仅供兼容性回退，不具备 v5.0 的完整加固**：
 
-接管发往路由器的 53 端口 DNS。
+```text
+https://raw.githubusercontent.com/menghuaban520/cloudflaresub/b07a04f674f09660ba1e7351b342ea7a82360582/configs/shadowrocket-pro.conf
+```
 
-这样仍然保留整个 `192.168.0.0/16` 的局域网兼容性，不取消 LAN 旁路，也不使用 `*:53`。
+下载为独立配置后，删除或注释其中的 `update-url`，避免更新时又切回 main 新版。不要为了回退去重写整个仓库历史。
 
-**这是最小修正，不先动 `fe80::1`。** 原因是它属于 IPv6 link-local DNS，当前主配置又保持 `ipv6 = false`。先只改一个变量复测，才能确认是否已经解决；如果恢复“自动 DNS”后仍出现 China Mobile，再单独处理 `fe80::1`，而不是一次把 IPv6/TUN 全部改掉。
+## 核对依据
 
-复测步骤：
+- LOWERTOP 的 Shadowrocket 使用手册与实际示例配置（社区维护、非官方说明）：https://github.com/LOWERTOP/Shadowrocket
+- `hijack-dns = :53` 配置实例：https://github.com/haritos90/shadowrocket-config-files
+- Apple 对 includeAllNetworks 与例外流量的定义：https://developer.apple.com/documentation/networkextension/nevpnprotocol/includeallnetworks
+- Cloudflare DoH 端点说明：https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/make-api-requests/
+- Quad9 DoH 服务说明：https://quad9.net/support/faq/
+- DNSPod 的域名接入调整公告：https://docs.dnspod.cn/notices/mian-fei-ban-dot-dohbu-zai-gong-kai-ipjie-ru-de-gong-gao/
+- ChinaMax / AdvertisingLite 作者规则：https://github.com/blackmatrix7/ios_rule_script/tree/master/rule/Shadowrocket
 
-1. iPhone `设置 -> Wi-Fi -> 当前网络 -> 配置 DNS -> 自动`。
-2. Shadowrocket 更新 v4.1，断开再连接。
-3. 再跑一次 DNS 泄漏检测。
-4. 如果只剩 Google / Cloudflare / OpenDNS 等国外解析器，说明 IPv4 路由器 DNS 路径已经足够解决问题。
-5. 如果仍出现 China Mobile，把新结果截图；下一步只处理 `fe80::1`。
-
-## 自定义纠错
-
-国外服务被 ChinaMax 误判直连：加到
-
-`configs/rules/user-proxy.list`
-
-国内正常服务误走代理：加到
-
-`configs/rules/user-direct.list`
-
-如果某个 App 因普通 AdvertisingLite 规则误拦，可以把需要放行的正常域名加进 `user-direct.list`；但那 15 条 `pre-matching` 高置信广告规则优先级更高，需要直接修改主配置才能放行。
-
-## UDP / Hysteria2
-
-建议：`设置 -> UDP -> 启用转发 -> 开启`。
-
-主配置不设置 `block-quic`，也不设置 `udp-policy-not-supported-behaviour = REJECT`，优先保证移动网络、Hysteria2、视频和游戏兼容性。
-
-## WebRTC / STUN
-
-做严格隐私测试时，可以临时：`设置 -> UDP -> 禁用 STUN -> 开启`。
-
-它可能影响网页语音/视频，所以日常不建议一直开。
-
-## 验收
-
-更新配置后断开再连接：
-
-1. 首页选择住宅 Reality。
-2. 打开淘宝/B站/抖音/微信，代理日志应大量是 `DIRECT`。
-3. 冷启动几个以前有开屏广告的 App，广告请求应出现 `REJECT`，部分 App 会直接跳过开屏。
-4. 打开 ChatGPT/Google/GitHub，应走 `PROXY`。
-5. Wi-Fi DNS 恢复“自动”后，用 `dnsleaktest.com`、`ipleak.net` 或之前的检测页检查；外国流量不应出现本地 China Mobile / China Unicom / China Telecom 系统递归 DNS。
-
-如果某个 App 依然有开屏广告，截 **开 App 那几秒的代理日志** 最有用：能看到它究竟是独立广告域名（可以继续稳妥补规则），还是和正常 API 共域名（A 方案就不建议硬拦）。
+参数说明和在线规则是可变化的依赖。后续升级客户端或更换节点后，应重新执行手机侧验收，而不是沿用本次离线检查的结论。
