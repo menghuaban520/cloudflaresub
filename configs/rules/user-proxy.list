@@ -1,5 +1,40 @@
 # User PROXY overrides for Shadowrocket Pro
-# Add one Shadowrocket rule per line, for example:
-# DOMAIN-SUFFIX,example.com
-# DOMAIN,api.example.com
-# This file is evaluated before mainland-direct rules, so it can force any special domain through the selected proxy node.
+# This file is evaluated BEFORE mainland-direct rules.
+# Use it to force known foreign services through the selected proxy node even if a broad China domain set contains them.
+
+# Foreign / global services that can appear in broad China-oriented rule collections
+DOMAIN-SUFFIX,github.com
+DOMAIN-SUFFIX,githubusercontent.com
+DOMAIN-SUFFIX,github.io
+DOMAIN-SUFFIX,google.com
+DOMAIN-SUFFIX,youtube.com
+DOMAIN-SUFFIX,youtu.be
+DOMAIN-SUFFIX,openai.com
+DOMAIN-SUFFIX,chatgpt.com
+DOMAIN-SUFFIX,anthropic.com
+DOMAIN-SUFFIX,claude.ai
+DOMAIN-SUFFIX,x.com
+DOMAIN-SUFFIX,twitter.com
+DOMAIN-SUFFIX,instagram.com
+DOMAIN-SUFFIX,facebook.com
+DOMAIN-SUFFIX,reddit.com
+DOMAIN-SUFFIX,discord.com
+DOMAIN-SUFFIX,paypal.com
+DOMAIN-SUFFIX,stripe.com
+DOMAIN-SUFFIX,w3schools.com
+DOMAIN-SUFFIX,teamviewer.com
+DOMAIN-SUFFIX,amd.com
+DOMAIN-SUFFIX,sony.com
+DOMAIN-SUFFIX,playstation.com
+DOMAIN-SUFFIX,playstation.net
+DOMAIN-SUFFIX,steampowered.com
+DOMAIN-SUFFIX,steamcommunity.com
+DOMAIN-SUFFIX,epicgames.com
+
+# DNS / leak-test / IP identity services should always follow the proxy identity
+DOMAIN-SUFFIX,dnsleaktest.com
+DOMAIN-SUFFIX,ipleak.net
+DOMAIN-SUFFIX,browserleaks.com
+DOMAIN-SUFFIX,browserleaks.org
+DOMAIN-SUFFIX,whoer.net
+DOMAIN-SUFFIX,ipinfo.io
