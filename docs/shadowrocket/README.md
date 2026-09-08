@@ -14,10 +14,10 @@
 **1. 添加配置。** 保留手机里原来能用的配置。复制下面的完整地址，到 Shadowrocket 的「配置」页，点添加按钮（通常为右上角 `+`）粘贴并下载。不同版本的按钮名称可能略有差异。
 
 ```text
-https://raw.githubusercontent.com/menghuaban520/cloudflaresub/67e36a59d3a67411b40fd8834ebc25764ed83b5d/configs/shadowrocket-rebuild.conf
+https://raw.githubusercontent.com/menghuaban520/cloudflaresub/9696477f2b3c7a77835d6f4e96117295c5182ee5/configs/shadowrocket-rebuild.conf
 ```
 
-这是固定版本链接，不会悄悄变成另一个版本。不要把它添加到首页的节点订阅栏。下载失败也可 [打开配置文件](../../configs/shadowrocket-rebuild.conf)，从电脑保存为 `.conf` 后传到手机导入。
+这是含分区注释的新手说明版固定链接，运行规则仍为 beta.2，不会悄悄变成另一个版本。不要把它添加到首页的节点订阅栏。下载失败也可 [打开配置文件](../../configs/shadowrocket-rebuild.conf)，从电脑保存为 `.conf` 后传到手机导入。
 
 **2. 选中并连接。** 在配置页选中下载的文件；查看开头应为 `花瓣 Rebuild 1.0-beta.2`。回到首页，把「全局路由」设为「配置」，选择自己的可用节点，再开启连接。原来已经开启时，断开后重连一次。
 
