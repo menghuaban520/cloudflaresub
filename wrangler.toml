@@ -1,5 +1,5 @@
 name = "cloudflaresub"
-main = "src/router.js"
+main = "src/worker.js"
 compatibility_date = "2026-03-06"
 workers_dev = true
 
@@ -7,4 +7,4 @@ workers_dev = true
 directory = "./public"
 binding = "ASSETS"
 not_found_handling = "single-page-application"
-run_worker_first = ["/api/*", "/sub/*", "/shadowrocket-pro.conf", "/rules/*"]
+run_worker_first = ["/api/*", "/sub/*"]
