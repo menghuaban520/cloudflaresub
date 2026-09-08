@@ -1,9 +1,9 @@
 name: Shadowrocket checks
 on:
   push:
-    paths: ['configs/**', 'public/shadowrocket*', 'scripts/build_shadowrocket*.py', 'tests/shadowrocket*', '.github/workflows/shadowrocket.yml']
+    paths: ['docs/shadowrocket/**', 'README.md', 'configs/**', 'public/shadowrocket*', 'scripts/build_shadowrocket*.py', 'tests/shadowrocket*', '.github/workflows/shadowrocket.yml']
   pull_request:
-    paths: ['configs/**', 'public/shadowrocket*', 'scripts/build_shadowrocket*.py', 'tests/shadowrocket*', '.github/workflows/shadowrocket.yml']
+    paths: ['docs/shadowrocket/**', 'README.md', 'configs/**', 'public/shadowrocket*', 'scripts/build_shadowrocket*.py', 'tests/shadowrocket*', '.github/workflows/shadowrocket.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -20,11 +20,15 @@ jobs:
       - run: python3 -m unittest discover -s tests -p 'shadowrocket*_test.py' -v
       - uses: actions/upload-artifact@v4
         with:
-          name: shadowrocket-standalone-candidate
+          name: huaban-rebuild-beta
           path: |
-            configs/shadowrocket-standalone*.conf
             configs/shadowrocket-rebuild.conf
-            configs/shadowrocket-build.json
-            docs/shadowrocket/**
+            docs/shadowrocket/README.md
+            docs/shadowrocket/CUSTOMIZE.md
+            docs/shadowrocket/TROUBLESHOOTING.md
+            docs/shadowrocket/VALIDATION.md
+            docs/shadowrocket/MAINTAINING.md
+            docs/shadowrocket/REBUILD.md
+            docs/shadowrocket/CHANGELOG.md
             LICENSE
           if-no-files-found: error
