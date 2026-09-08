@@ -1,9 +1,9 @@
 name: Shadowrocket checks
 on:
   push:
-    paths: ['configs/**', 'public/shadowrocket*', 'scripts/build_shadowrocket.py', 'tests/shadowrocket*', '.github/workflows/shadowrocket.yml']
+    paths: ['configs/**', 'public/shadowrocket*', 'scripts/build_shadowrocket*.py', 'tests/shadowrocket*', '.github/workflows/shadowrocket.yml']
   pull_request:
-    paths: ['configs/**', 'public/shadowrocket*', 'scripts/build_shadowrocket.py', 'tests/shadowrocket*', '.github/workflows/shadowrocket.yml']
+    paths: ['configs/**', 'public/shadowrocket*', 'scripts/build_shadowrocket*.py', 'tests/shadowrocket*', '.github/workflows/shadowrocket.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -16,12 +16,14 @@ jobs:
         with:
           python-version: '3.12'
       - run: python3 scripts/build_shadowrocket.py --check
+      - run: python3 scripts/build_shadowrocket_rebuild.py --check
       - run: python3 -m unittest discover -s tests -p 'shadowrocket*_test.py' -v
       - uses: actions/upload-artifact@v4
         with:
           name: shadowrocket-standalone-candidate
           path: |
             configs/shadowrocket-standalone*.conf
+            configs/shadowrocket-rebuild.conf
             configs/shadowrocket-build.json
             docs/shadowrocket/**
             LICENSE
