@@ -1,24 +1,46 @@
 # User PROXY overrides for Shadowrocket Pro
-# This file is evaluated BEFORE mainland-direct rules.
-# Use it to force known foreign services through the selected proxy node even if a broad China domain set contains them.
+# Evaluated BEFORE mainland-direct rules.
+# Known foreign/global services stay on the selected proxy even if a broad China list contains them.
 
-# Foreign / global services that can appear in broad China-oriented rule collections
-DOMAIN-SUFFIX,github.com
-DOMAIN-SUFFIX,githubusercontent.com
-DOMAIN-SUFFIX,github.io
-DOMAIN-SUFFIX,google.com
-DOMAIN-SUFFIX,youtube.com
-DOMAIN-SUFFIX,youtu.be
+# OpenAI / Anthropic
 DOMAIN-SUFFIX,openai.com
 DOMAIN-SUFFIX,chatgpt.com
+DOMAIN-SUFFIX,oaistatic.com
+DOMAIN-SUFFIX,oaiusercontent.com
 DOMAIN-SUFFIX,anthropic.com
 DOMAIN-SUFFIX,claude.ai
+
+# Google / YouTube
+DOMAIN-SUFFIX,google.com
+DOMAIN-SUFFIX,googleapis.com
+DOMAIN-SUFFIX,gstatic.com
+DOMAIN-SUFFIX,googleusercontent.com
+DOMAIN-SUFFIX,googlevideo.com
+DOMAIN-SUFFIX,youtube.com
+DOMAIN-SUFFIX,youtu.be
+DOMAIN-SUFFIX,ytimg.com
+
+# GitHub
+DOMAIN-SUFFIX,github.com
+DOMAIN-SUFFIX,githubusercontent.com
+DOMAIN-SUFFIX,githubassets.com
+DOMAIN-SUFFIX,github.io
+
+# Social / messaging
 DOMAIN-SUFFIX,x.com
 DOMAIN-SUFFIX,twitter.com
+DOMAIN-SUFFIX,t.co
 DOMAIN-SUFFIX,instagram.com
 DOMAIN-SUFFIX,facebook.com
+DOMAIN-SUFFIX,fbcdn.net
 DOMAIN-SUFFIX,reddit.com
 DOMAIN-SUFFIX,discord.com
+DOMAIN-SUFFIX,discordapp.com
+DOMAIN-SUFFIX,telegram.org
+DOMAIN-SUFFIX,t.me
+DOMAIN-SUFFIX,whatsapp.com
+
+# Payments / dev / gaming / global services sometimes appearing in broad direct lists
 DOMAIN-SUFFIX,paypal.com
 DOMAIN-SUFFIX,stripe.com
 DOMAIN-SUFFIX,w3schools.com
@@ -31,10 +53,14 @@ DOMAIN-SUFFIX,steampowered.com
 DOMAIN-SUFFIX,steamcommunity.com
 DOMAIN-SUFFIX,epicgames.com
 
-# DNS / leak-test / IP identity services should always follow the proxy identity
+# DNS / leak-test / identity services
 DOMAIN-SUFFIX,dnsleaktest.com
 DOMAIN-SUFFIX,ipleak.net
 DOMAIN-SUFFIX,browserleaks.com
 DOMAIN-SUFFIX,browserleaks.org
 DOMAIN-SUFFIX,whoer.net
 DOMAIN-SUFFIX,ipinfo.io
+DOMAIN-SUFFIX,dns.google
+DOMAIN-SUFFIX,cloudflare-dns.com
+DOMAIN-SUFFIX,one.one.one.one
+DOMAIN-SUFFIX,dns.quad9.net
