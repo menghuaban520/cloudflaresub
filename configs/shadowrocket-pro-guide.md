@@ -1,6 +1,6 @@
-# Shadowrocket Pro v3 使用说明
+# Shadowrocket Pro v4 使用说明
 
-目标：**国内尽量 DIRECT，国外统一走 Shadowrocket 首页当前节点；住宅/普通 Reality 与 Hysteria2 全部手动切换；不自动换 IP；避免中国移动系统 DNS 出现在外国流量的 DNS 路径里。**
+目标：**国内尽量 DIRECT，国外统一走 Shadowrocket 首页当前节点；住宅/普通 Reality 与 Hysteria2 全部手动切换；不自动换 IP；加强开屏广告拦截，但不启用 MITM。**
 
 ## 主配置
 
@@ -12,11 +12,7 @@ Cloudflare 只保留为可选静态镜像：
 
 `https://091329.xyz/shadowrocket-pro.conf`
 
-主逻辑不依赖 Cloudflare Worker 动态代理规则。
-
-Shadowrocket：`配置 -> 右上角 + -> 粘贴 URL -> 下载 -> 点配置使其出现 ✓`
-
-首页 **全局路由** 选择 **配置**。
+Shadowrocket：`配置 -> 右上角 + -> 粘贴 URL -> 下载 -> 点配置使其出现 ✓`，首页 **全局路由** 选择 **配置**。
 
 ## 节点
 
@@ -31,87 +27,88 @@ Shadowrocket：`配置 -> 右上角 + -> 粘贴 URL -> 下载 -> 点配置使其
 
 不要打开 **全局路由 -> 启用回退**，否则节点失败后 Shadowrocket 可能自行换出口。
 
-## 为什么 v3 国内会更快
+## v4 的开屏广告策略
 
-旧版为了 DNS 隐私，把默认 DNS 也经代理发到 Google / Cloudflare；同时只使用 ChinaMax 的 Domain 版本。这样一旦国内长尾域名没有及时命中，体验容易出现“国内 App 好像绕住宅出口”的感觉。
+v4 选择的是“稳妥加强”，不是 MITM 暴力模式。
 
-v3 改成：
+第一层是少量高置信度的开屏/广告专用域名，例如头条、快手、微博、喜马拉雅、腾讯音乐、小红书、小米、Vivo、HeyTap 等广告接口。它们使用：
 
-1. 高频国内服务先命中 `china-core.list` -> `DIRECT`
-2. 再按 ChinaMax 维护者建议同时加载 `ChinaMax.list` + `ChinaMax_Domain.list` -> `DIRECT`
-3. 中国 IP -> `GEOIP,CN,DIRECT,no-resolve`
-4. 剩余 -> `FINAL,PROXY`
+`REJECT,pre-matching`
 
-`ChinaMax.list` 还能补 USER-AGENT / IP 等规则；其 IP 类规则带 `no-resolve`，减少为了规则判断额外触发 DNS。
+`pre-matching` 会在普通规则匹配之前快速拒绝请求，适合这种用途明确的广告域名，能减少开屏广告请求傻等超时的时间。因为预匹配优先级很高，所以这里只放非常明确的广告端点，不拿模糊关键词乱杀。
 
-## DNS 设计
+第二层按 Blackmatrix7 对 Shadowrocket 的建议，同时使用：
 
-Shadowrocket 对已经判定为代理的域名，正常情况下会让代理端处理域名解析。因此 v3 不再让“默认本地 DNS”绕到美国代理出口。
+- `AdvertisingLite_Domain.list`（DOMAIN-SET）
+- `AdvertisingLite.list`（RULE-SET）
+
+Domain Set 先处理大量域名规则，完整 Rule Set 再补关键词/IP等条目。最后再用 ACL4SSR `BanProgramAD` 补一层 App 内广告。
+
+**没有 `[MITM]`、没有证书、没有 HTTPS 解密。** 所以如果某个 App 把广告内容和正常接口放在同一个第一方域名、只靠 URL 路径区分，v4 不会冒险去拆 HTTPS；这类广告可能仍然存在。这是 A 方案为了稳定性刻意留下的边界。
+
+也没有使用 `REJECT-DROP`：静默丢包容易让 App 等超时，开屏场景反而可能更慢；这里继续使用能快速失败的普通 `REJECT`。
+
+## 国内分流优化
+
+顺序现在是：
+
+1. `china-core.list` 高频国内服务 -> `DIRECT`
+2. `ChinaMax_Domain.list` -> `DIRECT`
+3. `ChinaMax.list` 补 USER-AGENT / IP 等 -> `DIRECT`
+4. `GEOIP,CN,DIRECT,no-resolve`
+5. 其余 -> `FINAL,PROXY`
+
+v4 把专用的 ChinaMax Domain Set 放在完整 Rule Set 前面，让普通域名请求优先走更直接的域名匹配；完整列表只负责补长尾类型。
+
+## DNS
 
 本地需要解析的 DIRECT 流量统一使用：
 
 - AliDNS DoH
 - DNSPod / doh.pub DoH
 
-并设置：
+并保持：
 
 - `dns-direct-system = false`
 - `dns-fallback-system = false`
 - `dns-direct-fallback-proxy = false`
 
-也就是说国内域名解析失败时，不会突然改走住宅代理；同时也不会回退到 iOS / 中国移动系统 DNS。
+国内解析失败不会突然绕住宅代理，也不会主动回退到 iOS / 中国移动系统 DNS。代理类域名保留 hostname，正常交给代理端处理。
 
-节点服务器自己的域名也使用国内加密 DNS 做 bootstrap。
+只接管常见境外公共 DNS 的 53 端口，不使用暴力 `*:53`。IPv6 暂时关闭，减少双栈出口变量。
 
-常见 `8.8.8.8 / 1.1.1.1 / 9.9.9.9` 的 53 端口请求仍会被接管，但没有使用暴力 `*:53`。
+## 自定义纠错
 
-## 广告
+国外服务被 ChinaMax 误判直连：加到
 
-v3 为了减少规则重复和分流副作用，去掉了“OFF= DIRECT”的广告/隐私代理组。
+`configs/rules/user-proxy.list`
 
-原因：一个外国 tracker 如果匹配广告/隐私组，而该组被切成 `DIRECT`，它就会绕过 `FINAL,PROXY`，反而破坏“国外统一代理”。
-
-现在使用较轻的固定 `REJECT`：
-
-- AdvertisingLite 的 Domain 规则
-- ACL4SSR BanProgramAD
-
-不加载重复的完整 AdvertisingLite + Privacy 大表，也不默认 MITM。
-
-## 国外服务防误判
-
-`configs/rules/user-proxy.list` 位于 ChinaMax 之前，里面明确包含 OpenAI、Google、YouTube、GitHub、X、Instagram、Reddit、Discord、Telegram、PayPal、Steam 等常见国外服务。
-
-如果以后发现某个国外站被误直连，把它加到 `user-proxy.list`。
-
-如果某个国内域名误走代理，把它加到：
+国内正常服务误走代理：加到
 
 `configs/rules/user-direct.list`
 
+如果某个 App 因普通 AdvertisingLite 规则误拦，可以把需要放行的正常域名加进 `user-direct.list`；但那 15 条 `pre-matching` 高置信广告规则优先级更高，需要直接修改主配置才能放行。
+
 ## UDP / Hysteria2
 
-建议：`设置 -> UDP -> 启用转发 -> 开启`
+建议：`设置 -> UDP -> 启用转发 -> 开启`。
 
-主配置不设置 `block-quic`，也不设置 `udp-policy-not-supported-behaviour = REJECT`，避免移动网络下出现 App 半连接、视频/游戏卡顿。
+主配置不设置 `block-quic`，也不设置 `udp-policy-not-supported-behaviour = REJECT`，优先保证移动网络、Hysteria2、视频和游戏兼容性。
 
 ## WebRTC / STUN
 
-如果做严格隐私测试，可临时：
+做严格隐私测试时，可以临时：`设置 -> UDP -> 禁用 STUN -> 开启`。
 
-`设置 -> UDP -> 禁用 STUN -> 开启`
-
-但可能影响网页语音/视频，所以日常不建议一直开。
+它可能影响网页语音/视频，所以日常不建议一直开。
 
 ## 验收
 
-更新配置后，断开再连接。
+更新配置后断开再连接：
 
-1. 首页选住宅 Reality。
-2. 打开淘宝、B站、抖音、微信等国内 App。
-3. `数据 -> 代理日志`：应大量看到 `DIRECT`。
-4. 打开 ChatGPT / Google / GitHub：应看到 `PROXY`。
-5. 打开 `dnsleaktest.com` 或 `ipleak.net`：测试站本身应命中 `PROXY`；外国流量不应出现本地 China Mobile / China Unicom / China Telecom 系统递归 DNS。
+1. 首页选择住宅 Reality。
+2. 打开淘宝/B站/抖音/微信，代理日志应大量是 `DIRECT`。
+3. 冷启动几个以前有开屏广告的 App，广告请求应出现 `REJECT`，部分 App 会直接跳过开屏。
+4. 打开 ChatGPT/Google/GitHub，应走 `PROXY`。
+5. 用 `dnsleaktest.com` 或 `ipleak.net` 检查外国流量，不应出现本地 China Mobile / China Unicom / China Telecom 系统递归 DNS。
 
-注意：AliDNS / DNSPod 出现在 **国内 DIRECT 的 DNS 日志** 是设计如此，不等于国外代理流量 DNS 泄漏。
-
-如果国内 App 仍慢，最有价值的是截一张 **数据 -> 代理日志**，看具体哪个域名落到了 `PROXY`；把那个域名补进 `user-direct.list` 会比盲目继续加大规则更准确。
+如果某个 App 依然有开屏广告，截 **开 App 那几秒的代理日志** 最有用：能看到它究竟是独立广告域名（可以继续稳妥补规则），还是和正常 API 共域名（A 方案就不建议硬拦）。
