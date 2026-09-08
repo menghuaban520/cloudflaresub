@@ -89,6 +89,13 @@ class ConfigTests(unittest.TestCase):
             for value in self.general[key].split(','):
                 self.assertIn('proxy', urlparse(value.strip()).fragment.split('&'), key)
 
+    def test_proxy_doh_does_not_probe_http3(self):
+        for key in ('dns-server', 'fallback-dns-server'):
+            for value in self.general[key].split(','):
+                options = urlparse(value.strip()).fragment.split('&')
+                self.assertIn('proxy', options)
+                self.assertIn('no-h3', options)
+
     def test_bootstrap_has_no_proxy_dependency(self):
         for key in ('proxy-dns-server', 'direct-dns-server'):
             for value in self.general[key].split(','):

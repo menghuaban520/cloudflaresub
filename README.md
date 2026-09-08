@@ -17,7 +17,7 @@
 
 ### 小火箭独立配置
 
-[花瓣 · Shadowrocket Standalone](docs/shadowrocket/README.md) 提供内嵌分流规则、可选广告拦截、离线构建与自动检查。无需部署 Worker，不含节点凭证。当前为 `5.1.0-rc.1` 候选版，实机验收尚未完成；原 v5 配置地址保持不变。
+[花瓣 · Shadowrocket Standalone](docs/shadowrocket/README.md) 提供内嵌分流规则、可选广告拦截、离线构建与自动检查。无需部署 Worker，不含节点凭证。当前为 `5.1.0-rc.2` 候选版，实机验收尚未完成；原 v5 配置地址保持不变。
 
 ### 订阅器
 

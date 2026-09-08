@@ -6,7 +6,7 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = '5.1.0-rc.1'
+VERSION = '5.1.0-rc.2'
 LOCAL = {
     'user-proxy.list': 'PROXY',
     'user-direct.list': 'DIRECT',
