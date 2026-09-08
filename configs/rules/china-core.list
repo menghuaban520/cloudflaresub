@@ -1,0 +1,232 @@
+# Curated mainland-China core domains for Shadowrocket Pro
+# Goal: keep common domestic apps DIRECT while avoiding broad "China" lists that also contain many foreign services.
+# One rule per line, no policy suffix. Main config applies DIRECT.
+
+# Mainland / Chinese TLDs
+DOMAIN-SUFFIX,cn
+DOMAIN-SUFFIX,xn--fiqs8s
+DOMAIN-SUFFIX,xn--55qx5d
+DOMAIN-SUFFIX,xn--io0a7i
+
+# Alibaba / Alipay / Taobao / Amap / DingTalk / Ele.me
+DOMAIN-SUFFIX,1688.com
+DOMAIN-SUFFIX,alibaba.com
+DOMAIN-SUFFIX,aliapp.org
+DOMAIN-SUFFIX,alicdn.com
+DOMAIN-SUFFIX,alipay.com
+DOMAIN-SUFFIX,alipayobjects.com
+DOMAIN-SUFFIX,alipan.com
+DOMAIN-SUFFIX,aliyun.com
+DOMAIN-SUFFIX,aliyuncdn.com
+DOMAIN-SUFFIX,aliyuncs.com
+DOMAIN-SUFFIX,aliyundrive.com
+DOMAIN-SUFFIX,amap.com
+DOMAIN-SUFFIX,autonavi.com
+DOMAIN-SUFFIX,dingtalk.com
+DOMAIN-SUFFIX,ele.me
+DOMAIN-SUFFIX,elemecdn.com
+DOMAIN-SUFFIX,taobao.com
+DOMAIN-SUFFIX,taobaocdn.com
+DOMAIN-SUFFIX,tbcache.com
+DOMAIN-SUFFIX,tmall.com
+DOMAIN-SUFFIX,ykimg.com
+DOMAIN-SUFFIX,youku.com
+
+# Tencent / WeChat / QQ
+DOMAIN-SUFFIX,gtimg.com
+DOMAIN-SUFFIX,idqqimg.com
+DOMAIN-SUFFIX,myapp.com
+DOMAIN-SUFFIX,myqcloud.com
+DOMAIN-SUFFIX,qcloud.com
+DOMAIN-SUFFIX,qpic.cn
+DOMAIN-SUFFIX,qq.com
+DOMAIN-SUFFIX,qqmail.com
+DOMAIN-SUFFIX,qqurl.com
+DOMAIN-SUFFIX,qzone.com
+DOMAIN-SUFFIX,soso.com
+DOMAIN-SUFFIX,tencent-cloud.net
+DOMAIN-SUFFIX,tencent.com
+DOMAIN-SUFFIX,tenpay.com
+DOMAIN-SUFFIX,wechat.com
+DOMAIN-SUFFIX,weixin.com
+DOMAIN-SUFFIX,weiyun.com
+
+# ByteDance / Douyin / Toutiao / Xigua
+DOMAIN-SUFFIX,amemv.com
+DOMAIN-SUFFIX,bdxiguaimg.com
+DOMAIN-SUFFIX,bdxiguastatic.com
+DOMAIN-SUFFIX,byted-static.com
+DOMAIN-SUFFIX,bytedance.com
+DOMAIN-SUFFIX,bytedance.net
+DOMAIN-SUFFIX,bytedns.net
+DOMAIN-SUFFIX,byteimg.com
+DOMAIN-SUFFIX,bytescm.com
+DOMAIN-SUFFIX,bytetos.com
+DOMAIN-SUFFIX,douyin.com
+DOMAIN-SUFFIX,douyincdn.com
+DOMAIN-SUFFIX,douyinpic.com
+DOMAIN-SUFFIX,douyinstatic.com
+DOMAIN-SUFFIX,douyinvod.com
+DOMAIN-SUFFIX,iesdouyin.com
+DOMAIN-SUFFIX,ixigua.com
+DOMAIN-SUFFIX,pstatp.com
+DOMAIN-SUFFIX,snssdk.com
+DOMAIN-SUFFIX,toutiao.com
+DOMAIN-SUFFIX,toutiaoapi.com
+DOMAIN-SUFFIX,toutiaocdn.com
+DOMAIN-SUFFIX,toutiaoimg.com
+
+# Bilibili
+DOMAIN-SUFFIX,b23.tv
+DOMAIN-SUFFIX,biliapi.com
+DOMAIN-SUFFIX,biliapi.net
+DOMAIN-SUFFIX,bilibili.com
+DOMAIN-SUFFIX,biligame.com
+DOMAIN-SUFFIX,biligame.net
+DOMAIN-SUFFIX,bilivideo.com
+DOMAIN-SUFFIX,hdslb.com
+
+# Baidu
+DOMAIN-SUFFIX,baidu.com
+DOMAIN-SUFFIX,baidubce.com
+DOMAIN-SUFFIX,baidupcs.com
+DOMAIN-SUFFIX,baidustatic.com
+DOMAIN-SUFFIX,bcebos.com
+DOMAIN-SUFFIX,bdimg.com
+DOMAIN-SUFFIX,bdstatic.com
+DOMAIN-SUFFIX,hao123.com
+
+# JD / PDD / Vipshop / Suning
+DOMAIN-SUFFIX,360buy.com
+DOMAIN-SUFFIX,360buyimg.com
+DOMAIN-SUFFIX,jd.com
+DOMAIN-SUFFIX,jdcloud.com
+DOMAIN-SUFFIX,jdpay.com
+DOMAIN-SUFFIX,pinduoduo.com
+DOMAIN-SUFFIX,yangkeduo.com
+DOMAIN-SUFFIX,pddpic.com
+DOMAIN-SUFFIX,vip.com
+DOMAIN-SUFFIX,vipstatic.com
+DOMAIN-SUFFIX,suning.com
+
+# Meituan / Dianping / Didi
+DOMAIN-SUFFIX,dianping.com
+DOMAIN-SUFFIX,meituan.com
+DOMAIN-SUFFIX,meituan.net
+DOMAIN-SUFFIX,sankuai.com
+DOMAIN-SUFFIX,sankuai.info
+DOMAIN-SUFFIX,didi.cn
+DOMAIN-SUFFIX,udache.com
+
+# Kuaishou
+DOMAIN-SUFFIX,gifshow.com
+DOMAIN-SUFFIX,kuaishou.com
+DOMAIN-SUFFIX,kwaicdn.com
+DOMAIN-SUFFIX,yximgs.com
+
+# NetEase
+DOMAIN-SUFFIX,126.com
+DOMAIN-SUFFIX,126.net
+DOMAIN-SUFFIX,127.net
+DOMAIN-SUFFIX,163.com
+DOMAIN-SUFFIX,163yun.com
+DOMAIN-SUFFIX,lofter.com
+DOMAIN-SUFFIX,netease.com
+DOMAIN-SUFFIX,ydstatic.com
+DOMAIN-SUFFIX,youdao.com
+
+# Sina / Weibo
+DOMAIN-SUFFIX,sina.com
+DOMAIN-SUFFIX,sina.cn
+DOMAIN-SUFFIX,sinaimg.com
+DOMAIN-SUFFIX,weibo.com
+DOMAIN-SUFFIX,weibo.cn
+DOMAIN-SUFFIX,weibocdn.com
+
+# Xiaomi / Huawei / Honor / OPPO / HeyTap / Vivo
+DOMAIN-SUFFIX,duokan.com
+DOMAIN-SUFFIX,mi-img.com
+DOMAIN-SUFFIX,mi.com
+DOMAIN-SUFFIX,miui.com
+DOMAIN-SUFFIX,xiaomi.com
+DOMAIN-SUFFIX,xiaomi.net
+DOMAIN-SUFFIX,dbankcdn.com
+DOMAIN-SUFFIX,hicloud.com
+DOMAIN-SUFFIX,hihonor.com
+DOMAIN-SUFFIX,huawei.com
+DOMAIN-SUFFIX,huaweicloud.com
+DOMAIN-SUFFIX,vmall.com
+DOMAIN-SUFFIX,coloros.com
+DOMAIN-SUFFIX,heytap.com
+DOMAIN-SUFFIX,heytapimage.com
+DOMAIN-SUFFIX,heytapmobi.com
+DOMAIN-SUFFIX,oppo.com
+DOMAIN-SUFFIX,vivo.com.cn
+
+# Video / streaming / live
+DOMAIN-SUFFIX,iqiyi.com
+DOMAIN-SUFFIX,iqiyipic.com
+DOMAIN-SUFFIX,qiyi.com
+DOMAIN-SUFFIX,qiyipic.com
+DOMAIN-SUFFIX,qy.net
+DOMAIN-SUFFIX,hitv.com
+DOMAIN-SUFFIX,hunantv.com
+DOMAIN-SUFFIX,mgtv.com
+DOMAIN-SUFFIX,douyu.com
+DOMAIN-SUFFIX,douyu.tv
+DOMAIN-SUFFIX,douyutv.com
+DOMAIN-SUFFIX,huya.com
+
+# Xiaohongshu / Zhihu
+DOMAIN-SUFFIX,xiaohongshu.com
+DOMAIN-SUFFIX,xhscdn.com
+DOMAIN-SUFFIX,zhihu.com
+DOMAIN-SUFFIX,zhimg.com
+
+# Travel / maps / rail
+DOMAIN-SUFFIX,12306.com
+DOMAIN-SUFFIX,ctrip.com
+DOMAIN-SUFFIX,qunar.com
+DOMAIN-SUFFIX,qunarzz.com
+
+# Carriers / one-key login
+DOMAIN-SUFFIX,10010.com
+DOMAIN-SUFFIX,10086.cn
+DOMAIN-SUFFIX,189.cn
+DOMAIN-SUFFIX,cmpassport.com
+DOMAIN-SUFFIX,wo.cn
+DOMAIN-SUFFIX,chinaunicom.com.cn
+DOMAIN-SUFFIX,chinatelecom.com.cn
+
+# Banks / payment
+DOMAIN-SUFFIX,95516.com
+DOMAIN-SUFFIX,abchina.com
+DOMAIN-SUFFIX,bankcomm.com
+DOMAIN-SUFFIX,ccb.com
+DOMAIN-SUFFIX,cmbchina.com
+DOMAIN-SUFFIX,icbc.com.cn
+DOMAIN-SUFFIX,unionpay.com
+
+# Common domestic services
+DOMAIN-SUFFIX,36kr.com
+DOMAIN-SUFFIX,51job.com
+DOMAIN-SUFFIX,58.com
+DOMAIN-SUFFIX,bosszhipin.com
+DOMAIN-SUFFIX,cctv.com
+DOMAIN-SUFFIX,eastmoney.com
+DOMAIN-SUFFIX,lagou.com
+DOMAIN-SUFFIX,people.com.cn
+DOMAIN-SUFFIX,xueqiu.com
+DOMAIN-SUFFIX,ximalaya.com
+DOMAIN-SUFFIX,xmcdn.com
+DOMAIN-SUFFIX,xinhuanet.com
+
+# China game ecosystems
+DOMAIN-SUFFIX,mihoyo.com
+DOMAIN-SUFFIX,yuanshen.com
+DOMAIN-SUFFIX,wanmei.com
+DOMAIN-SUFFIX,wmsj.cn
+
+# Domestic public DNS endpoints used only for DIRECT DNS / proxy-node bootstrap
+DOMAIN-SUFFIX,dns.alidns.com
+DOMAIN-SUFFIX,doh.pub
