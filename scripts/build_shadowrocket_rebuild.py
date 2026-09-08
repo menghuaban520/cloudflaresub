@@ -39,7 +39,7 @@ def main():
                 parser.exit(1, f'Stale artifact: {name}\n')
         else:
             path.write_bytes(data)
-    print('Rebuild 1.0-beta.1: ' + ('verified' if args.check else 'built'))
+    print('Rebuild 1.0-beta.2: ' + ('verified' if args.check else 'built'))
 
 
 if __name__ == '__main__':

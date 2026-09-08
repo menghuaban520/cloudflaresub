@@ -1,10 +1,20 @@
-# 花瓣 Rebuild 1.0-beta.1
+# 花瓣 Rebuild 1.0-beta.2
+
+2026-09-08：用户已确认 beta.1 能连接。beta.2 仅追加微信、抖音、酷狗和酷我的 19 条域名分流，General / Host 与 beta.1 完全一致；新增 App 功能尚待手机验证。
+
+微信 qq.com、weixin.com、wechat.com、qpic.cn、gtimg.com 和抖音主域名原已覆盖，本次补充漏项。酷狗此前缺少明确主域名规则，现补齐。QQ 音乐与网易云仅有核心域名覆盖，不宣称覆盖所有 CDN。新增条目放在用户覆盖、广告和国外保护之后；TikTok 仍走代理，不新增 ASN、User-Agent 或共享 CDN 大范围直连。
+
+域名分类交叉核对（2026-09-08，社区列表，不代表服务商保证）：[WeChat](https://github.com/blackmatrix7/ios_rule_script/blob/master/rule/Shadowrocket/WeChat/WeChat.list)、[DouYin](https://github.com/blackmatrix7/ios_rule_script/blob/master/rule/Shadowrocket/DouYin/DouYin.list)、[酷狗与酷我](https://github.com/LM-Firefly/Rules/blob/master/Domestic-Services/Kugou%26Kuwo.list)。仅选取少量域名事实重新组织，不加载外部列表。
+
+本次是国内直连优化，没有增加 App 去广告规则，也不承诺去除微信朋友圈、抖音信息流或酷狗开屏广告。
+
+## beta.1 设计与限制（保留）
 
 用户反馈 v5.1 rc.1 和 rc.2 均出现测速超时，实际网页也打不开。节点被用户确认可用，但没有客户端错误日志，不能确定具体根因。此版本是重新设计的兼容性基线，不是已确认根因的补丁，也不是稳定发布版。
 
 ## 安装
 
-导入 `configs/shadowrocket-rebuild.conf`，确认首行是 `花瓣 Rebuild 1.0-beta.1`；选中该配置，全局路由用“配置”，选择原节点，断开重连。配置没有自动更新 URL，不会自动切换到原 v5。没有更改、添加或删除用户节点。
+导入 `configs/shadowrocket-rebuild.conf`，确认首行是 `花瓣 Rebuild 1.0-beta.2`；选中该配置，全局路由用“配置”，选择原节点，断开重连。配置没有自动更新 URL，不会自动切换到原 v5。没有更改、添加或删除用户节点。
 
 如之前手动修改过“包括所有网络”等 App 开关，这些不会因换文件自动复原；不要以为导入新文件已重置客户端。若新基线仍失败，需要客户端日志与实际设置截图才能继续，不能承诺靠换配置解决所有情况。
 
