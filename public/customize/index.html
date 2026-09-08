@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="description" content="用中文选项自定义小火箭 DNS、应用分流与广告规则，生成链式代理及 STUN 操作指引。全部在浏览器本地完成。"><title>花瓣 · 小火箭配置工坊</title><link rel="icon" href="../icons/shadowrocket.svg"><link rel="stylesheet" href="./style.css"></head>
+<body>
+<header><a class="brand" href="../"><img src="../icons/shadowrocket.svg" width="30" height="30" alt="">花瓣 <span>/ 配置工坊</span></a><a href="https://github.com/menghuaban520/cloudflaresub/tree/main/docs/shadowrocket">使用文档 ↗</a></header>
+<main>
+<section class="intro"><p class="eyebrow">SHADOWROCKET · REBUILD BETA</p><h1>你来选，<br class="mobile">配置交给花瓣。</h1><p>从能用的默认配置开始。连接、DNS、应用分流，按你的习惯慢慢调整。</p><div class="badges"><span>● 浏览器本地生成</span><span>无需填写节点密码</span><span>随时恢复默认</span></div></section>
+<div class="workspace">
+<form id="settings" novalidate>
+<section class="card"><div class="section-title"><span class="number">01</span><div><h2>怎么连接</h2><p>平时用一个节点；需要指定出口时，再开启代理链。</p></div><span class="tag manual">手机设置</span></div>
+<label class="toggle"><span><strong>使用链式代理</strong><small>经过入口节点，再从出口节点访问网站</small></span><input id="chain" type="checkbox"></label>
+<div id="chain-fields" hidden><div class="cols"><label>入口节点名称<input id="entry" maxlength="80" placeholder="例如：香港中转"></label><label>出口节点名称<input id="exit" maxlength="80" placeholder="例如：美国住宅"></label></div><p class="hint">填写小火箭中已有的节点名称。网页不能读取手机节点列表，也不会购买或创建节点。</p><div id="route" class="route"></div><div class="notice">导出配置不会自动绑定代理链。下方操作清单会告诉你该点哪个节点，避免把入口和出口选反。</div></div>
+</section>
+<section class="card"><div class="section-title"><span class="number">02</span><div><h2>DNS 与通话隐私</h2><p>DNS 帮你找到网站地址。不确定时，保留兼容优先。</p></div><span class="tag">写入配置</span></div>
+<label for="dns">DNS 模式</label><select id="dns"><option value="compatible">兼容优先 · 推荐，沿用已连接成功的参数</option><option value="privacy">本地 DNS 经代理 · 进阶，可能增加连接依赖</option><option value="custom">自己填写加密 DNS · 高级</option></select><p id="dns-help" class="hint"></p>
+<div id="dns-fields" hidden><label for="customDns">HTTPS DNS 地址 · 每行一个，最多三个</label><textarea id="customDns" rows="3" placeholder="https://dns.example.com/dns-query" spellcheck="false"></textarea><label class="check"><input id="dnsViaProxy" type="checkbox">这些 DNS 查询经过当前代理</label><p class="hint">只填地址，程序自动补齐参数。请使用你信任且可访问的解析服务；节点域名引导仍保持默认。</p></div>
+<div class="divider"></div><label class="toggle"><span><strong>限制 STUN（WebRTC 相关） <span class="tag manual">手机设置</span></strong><small>默认关闭以兼容通话。开启可能影响微信语音、视频和网页通话。</small></span><input id="stun" type="checkbox"></label><p class="hint">这是针对 STUN 的设置，不代表全面阻止 WebRTC IP 暴露。操作清单会说明如何在小火箭里设置。</p>
+</section>
+<section class="card"><div class="section-title"><span class="number">03</span><div><h2>哪些应用走代理</h2><p>默认国内直连，国外与未知网站跟随首页节点。</p></div><span class="tag">写入配置</span></div>
+<div class="app-row"><label for="wechat"><span class="app-icon green">微</span>微信</label><select id="wechat"><option value="default">默认 · 国内直连</option><option value="DIRECT">强制直连</option><option value="PROXY">使用代理</option></select></div>
+<div class="app-row"><label for="douyin"><span class="app-icon pink">抖</span>抖音</label><select id="douyin"><option value="default">默认 · 国内直连</option><option value="DIRECT">强制直连</option><option value="PROXY">使用代理</option></select></div>
+<div class="app-row"><label for="kugou"><span class="app-icon blue">酷</span>酷狗音乐</label><select id="kugou"><option value="default">默认 · 国内直连</option><option value="DIRECT">强制直连</option><option value="PROXY">使用代理</option></select></div>
+<p class="hint">按已收录域名分流，不是按 App 进程识别，可能存在漏项。微信不覆盖整个 qq.com；抖音不包含 TikTok，也不覆盖整片共享 CDN。</p>
+<label class="toggle"><span><strong>轻量去广告</strong><small>只拦截 5 个明确广告域名。不是全量去广告。</small></span><input id="ads" type="checkbox" checked></label>
+<details><summary>再细一点：指定网站的连接方式</summary><p class="hint">每行一个完整域名，例如 api.example.com，仅匹配该域名。这里优先于应用选择；DNS 和局域网仍保留直连。</p><div class="cols"><label>这些域名直连<textarea id="direct" rows="4" placeholder="music.example.com" spellcheck="false"></textarea></label><label>这些域名走代理<textarea id="proxy" rows="4" placeholder="api.example.com" spellcheck="false"></textarea></label></div></details>
+</section>
+<div class="tools"><button type="button" id="save" class="secondary">保存我的选项</button><label class="file-button">载入选项<input id="import" type="file" accept=".json,application/json"></label><button type="button" id="reset" class="text-button">恢复默认</button></div><p class="hint">保存为本地 JSON 文件，下次载入继续改。不会上传；关闭页面前记得保存。</p>
+</form>
+<aside><section class="card result"><p class="eyebrow">你的配置</p><h2>选完，就可以带走。</h2><dl id="summary"></dl><div id="errors" role="alert" hidden></div><p id="status" role="status">正在读取基础配置…</p><button id="download" disabled>下载小火箭配置 <span>↓</span></button><button id="guide" class="secondary" disabled>下载配套操作清单</button><p class="hint">配置不包含节点。链式代理、STUN 需要按照清单在小火箭里设置。</p><details><summary>查看生成的配置</summary><textarea id="preview" readonly rows="12" aria-label="生成的配置"></textarea></details></section>
+<section class="card checklist"><h2>04 · 在小火箭里完成</h2><ol id="steps"></ol><a href="https://github.com/LOWERTOP/Shadowrocket#代理通过代理链">客户端操作参考 ↗</a></section></aside>
+</div><footer>花瓣 Rebuild · 不安装证书，无远程规则依赖。默认参数已有用户连接成功反馈；自定义组合需在你的手机验证。</footer>
+</main><script type="module" src="./app.js"></script>
+</body></html>

@@ -1,9 +1,9 @@
 name: Shadowrocket checks
 on:
   push:
-    paths: ['docs/shadowrocket/**', 'README.md', 'configs/**', 'public/shadowrocket*', 'scripts/build_shadowrocket*.py', 'scripts/package_shadowrocket.py', 'tests/shadowrocket*', '.github/workflows/shadowrocket.yml']
+    paths: ['docs/shadowrocket/**', 'README.md', 'configs/**', 'public/shadowrocket*', 'public/customize/**', 'scripts/build_shadowrocket*.py', 'scripts/package_shadowrocket.py', 'tests/shadowrocket*', '.github/workflows/shadowrocket.yml']
   pull_request:
-    paths: ['docs/shadowrocket/**', 'README.md', 'configs/**', 'public/shadowrocket*', 'scripts/build_shadowrocket*.py', 'scripts/package_shadowrocket.py', 'tests/shadowrocket*', '.github/workflows/shadowrocket.yml']
+    paths: ['docs/shadowrocket/**', 'README.md', 'configs/**', 'public/shadowrocket*', 'public/customize/**', 'scripts/build_shadowrocket*.py', 'scripts/package_shadowrocket.py', 'tests/shadowrocket*', '.github/workflows/shadowrocket.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -15,6 +15,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/shadowrocket_customizer_test.mjs
       - run: python3 scripts/build_shadowrocket.py --check
       - run: python3 scripts/build_shadowrocket_rebuild.py --check
       - run: python3 -m unittest discover -s tests -p 'shadowrocket*_test.py' -v
