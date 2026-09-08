@@ -1,0 +1,5 @@
+# User PROXY overrides for Shadowrocket Pro
+# Add one Shadowrocket rule per line, for example:
+# DOMAIN-SUFFIX,example.com
+# DOMAIN,api.example.com
+# This file is evaluated before mainland-direct rules, so it can force any special domain through the selected proxy node.
