@@ -1,0 +1,5 @@
+# User DIRECT overrides for Shadowrocket Pro
+# Add one Shadowrocket rule per line, for example:
+# DOMAIN-SUFFIX,example.cn
+# DOMAIN,api.example.com
+# This file is evaluated before ad/privacy filters and before foreign fallback.
