@@ -1,0 +1,16 @@
+{
+  "version": "5.1.0-rc.2",
+  "status": "release-candidate; iOS validation pending",
+  "inputs": {
+    "configs/shadowrocket-pro.conf": "71eebb8e46ed29a1efed3d8e190843ad5f6d4bc8ba6b39a5db31957ea6530d6c",
+    "configs/rules/user-proxy.list": "7be8bd92aff1942a14da82124797d5cc06aec3841265e2ab90bceda56e2d6eff",
+    "configs/rules/user-direct.list": "e440423ad43b6f796b24a66a1d4fdc4649ec78b0e8bf8850d8b6fe3495e30f67",
+    "configs/rules/china-core.list": "18dce1bccbb27c6a842fce6ca10ac94492daf185fd08511898270db0288be5ca"
+  },
+  "outputs": {
+    "configs/shadowrocket-standalone.conf": "ba574c8db14ce844dc131140a27a8a66fef16ade06dafe46400bdc6ab1c5227e",
+    "public/shadowrocket-standalone.conf": "ba574c8db14ce844dc131140a27a8a66fef16ade06dafe46400bdc6ab1c5227e",
+    "configs/shadowrocket-standalone-noads.conf": "cd9e30e960051975647fd0fadd494a6fff7eeb81f662638c527250c064646541",
+    "public/shadowrocket-standalone-noads.conf": "cd9e30e960051975647fd0fadd494a6fff7eeb81f662638c527250c064646541"
+  }
+}
