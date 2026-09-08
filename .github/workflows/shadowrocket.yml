@@ -1,9 +1,9 @@
 name: Shadowrocket checks
 on:
   push:
-    paths: ['docs/shadowrocket/**', 'README.md', 'configs/**', 'public/shadowrocket*', 'scripts/build_shadowrocket*.py', 'tests/shadowrocket*', '.github/workflows/shadowrocket.yml']
+    paths: ['docs/shadowrocket/**', 'README.md', 'configs/**', 'public/shadowrocket*', 'scripts/build_shadowrocket*.py', 'scripts/package_shadowrocket.py', 'tests/shadowrocket*', '.github/workflows/shadowrocket.yml']
   pull_request:
-    paths: ['docs/shadowrocket/**', 'README.md', 'configs/**', 'public/shadowrocket*', 'scripts/build_shadowrocket*.py', 'tests/shadowrocket*', '.github/workflows/shadowrocket.yml']
+    paths: ['docs/shadowrocket/**', 'README.md', 'configs/**', 'public/shadowrocket*', 'scripts/build_shadowrocket*.py', 'scripts/package_shadowrocket.py', 'tests/shadowrocket*', '.github/workflows/shadowrocket.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -18,17 +18,9 @@ jobs:
       - run: python3 scripts/build_shadowrocket.py --check
       - run: python3 scripts/build_shadowrocket_rebuild.py --check
       - run: python3 -m unittest discover -s tests -p 'shadowrocket*_test.py' -v
+      - run: python3 scripts/package_shadowrocket.py
       - uses: actions/upload-artifact@v4
         with:
           name: huaban-rebuild-beta
-          path: |
-            configs/shadowrocket-rebuild.conf
-            docs/shadowrocket/README.md
-            docs/shadowrocket/CUSTOMIZE.md
-            docs/shadowrocket/TROUBLESHOOTING.md
-            docs/shadowrocket/VALIDATION.md
-            docs/shadowrocket/MAINTAINING.md
-            docs/shadowrocket/REBUILD.md
-            docs/shadowrocket/CHANGELOG.md
-            LICENSE
+          path: dist/huaban-rebuild-beta.zip
           if-no-files-found: error

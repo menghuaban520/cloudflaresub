@@ -47,6 +47,20 @@ class RebuildTests(unittest.TestCase):
             self.assertEqual(inline_route(self.rules, domain), 'PROXY', domain)
         self.assertEqual(inline_route(self.rules, 'ad.toutiao.com'), 'REJECT')
 
+    def test_domestic_apps_and_shared_cdn_boundaries(self):
+        for domain in ('wx.qlogo.cn', 'servicewechat.com', 'www.wechatpay.com',
+                       'www.weixinbridge.com', 'video.idouyinvod.com',
+                       'video.ixiguavideo.com', 'lf3-static.bytednsdoc.com',
+                       'v5-dy-o-abtest.zjcdn.com', 'www.kugou.com',
+                       'img.kgimg.com', 'www.kugou.net', 'www.kugoo.com',
+                       'kglink.cn', 'www.kugouipv6.com', 'www.kuwo.cn',
+                       'www.koowo.com', 'www.koowo.cn'):
+            with self.subTest(domain=domain):
+                self.assertEqual(inline_route(self.rules, domain), 'DIRECT')
+                self.assertEqual(inline_route(self.rules, domain + '.evil.example'), 'PROXY')
+        for domain in ('unknown.zjcdn.com', 'unknown.bytednsdoc.com', 'tiktokcdn.com'):
+            self.assertEqual(inline_route(self.rules, domain), 'PROXY')
+
 
 if __name__ == '__main__':
     unittest.main()
