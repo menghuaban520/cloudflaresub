@@ -1,6 +1,6 @@
-# Shadowrocket Pro v4 使用说明
+# Shadowrocket Pro v4.1 使用说明
 
-目标：**国内尽量 DIRECT，国外统一走 Shadowrocket 首页当前节点；住宅/普通 Reality 与 Hysteria2 全部手动切换；不自动换 IP；加强开屏广告拦截，但不启用 MITM。**
+目标：**国内尽量 DIRECT，国外统一走 Shadowrocket 首页当前节点；住宅/普通 Reality 与 Hysteria2 全部手动切换；不自动换 IP；加强开屏广告拦截，但不启用 MITM；针对当前 Wi-Fi 的路由器 DNS 泄漏做最小修正。**
 
 ## 主配置
 
@@ -29,7 +29,7 @@ Shadowrocket：`配置 -> 右上角 + -> 粘贴 URL -> 下载 -> 点配置使其
 
 ## v4 的开屏广告策略
 
-v4 选择的是“稳妥加强”，不是 MITM 暴力模式。
+v4/v4.1 选择的是“稳妥加强”，不是 MITM 暴力模式。
 
 第一层是少量高置信度的开屏/广告专用域名，例如头条、快手、微博、喜马拉雅、腾讯音乐、小红书、小米、Vivo、HeyTap 等广告接口。它们使用：
 
@@ -44,7 +44,7 @@ v4 选择的是“稳妥加强”，不是 MITM 暴力模式。
 
 Domain Set 先处理大量域名规则，完整 Rule Set 再补关键词/IP等条目。最后再用 ACL4SSR `BanProgramAD` 补一层 App 内广告。
 
-**没有 `[MITM]`、没有证书、没有 HTTPS 解密。** 所以如果某个 App 把广告内容和正常接口放在同一个第一方域名、只靠 URL 路径区分，v4 不会冒险去拆 HTTPS；这类广告可能仍然存在。这是 A 方案为了稳定性刻意留下的边界。
+**没有 `[MITM]`、没有证书、没有 HTTPS 解密。** 所以如果某个 App 把广告内容和正常接口放在同一个第一方域名、只靠 URL 路径区分，v4.1 不会冒险去拆 HTTPS；这类广告可能仍然存在。这是 A 方案为了稳定性刻意留下的边界。
 
 也没有使用 `REJECT-DROP`：静默丢包容易让 App 等超时，开屏场景反而可能更慢；这里继续使用能快速失败的普通 `REJECT`。
 
@@ -58,7 +58,7 @@ Domain Set 先处理大量域名规则，完整 Rule Set 再补关键词/IP等�
 4. `GEOIP,CN,DIRECT,no-resolve`
 5. 其余 -> `FINAL,PROXY`
 
-v4 把专用的 ChinaMax Domain Set 放在完整 Rule Set 前面，让普通域名请求优先走更直接的域名匹配；完整列表只负责补长尾类型。
+专用的 ChinaMax Domain Set 放在完整 Rule Set 前面，让普通域名请求优先走更直接的域名匹配；完整列表只负责补长尾类型。
 
 ## DNS
 
@@ -75,7 +75,42 @@ v4 把专用的 ChinaMax Domain Set 放在完整 Rule Set 前面，让普通域�
 
 国内解析失败不会突然绕住宅代理，也不会主动回退到 iOS / 中国移动系统 DNS。代理类域名保留 hostname，正常交给代理端处理。
 
-只接管常见境外公共 DNS 的 53 端口，不使用暴力 `*:53`。IPv6 暂时关闭，减少双栈出口变量。
+只接管指定 DNS 的 53 端口，不使用暴力 `*:53`。IPv6 暂时关闭，减少双栈出口变量。
+
+## v4.1：当前 Wi-Fi 的 DNS 防漏修正
+
+当前实测 Wi-Fi 自动下发的 DNS 是：
+
+- `192.168.1.1`
+- `fe80::1`
+
+手动把 Wi-Fi DNS 改成 `1.1.1.1 + 8.8.8.8` 后，DNS 检测中的 China Mobile 解析器消失，因此可以确认泄漏来自“路由器 DNS / 系统 DNS 路径”，而不是 AliDNS/DNSPod 本身。
+
+v4.1 先只修最明确、风险最低的 IPv4 路径：
+
+`192.168.1.1/32`
+
+通过：
+
+`tun-included-routes = 192.168.1.1/32`
+
+把这个单独地址拉回 Shadowrocket TUN，然后：
+
+`hijack-dns = 192.168.1.1:53,...`
+
+接管发往路由器的 53 端口 DNS。
+
+这样仍然保留整个 `192.168.0.0/16` 的局域网兼容性，不取消 LAN 旁路，也不使用 `*:53`。
+
+**这是最小修正，不先动 `fe80::1`。** 原因是它属于 IPv6 link-local DNS，当前主配置又保持 `ipv6 = false`。先只改一个变量复测，才能确认是否已经解决；如果恢复“自动 DNS”后仍出现 China Mobile，再单独处理 `fe80::1`，而不是一次把 IPv6/TUN 全部改掉。
+
+复测步骤：
+
+1. iPhone `设置 -> Wi-Fi -> 当前网络 -> 配置 DNS -> 自动`。
+2. Shadowrocket 更新 v4.1，断开再连接。
+3. 再跑一次 DNS 泄漏检测。
+4. 如果只剩 Google / Cloudflare / OpenDNS 等国外解析器，说明 IPv4 路由器 DNS 路径已经足够解决问题。
+5. 如果仍出现 China Mobile，把新结果截图；下一步只处理 `fe80::1`。
 
 ## 自定义纠错
 
@@ -109,6 +144,6 @@ v4 把专用的 ChinaMax Domain Set 放在完整 Rule Set 前面，让普通域�
 2. 打开淘宝/B站/抖音/微信，代理日志应大量是 `DIRECT`。
 3. 冷启动几个以前有开屏广告的 App，广告请求应出现 `REJECT`，部分 App 会直接跳过开屏。
 4. 打开 ChatGPT/Google/GitHub，应走 `PROXY`。
-5. 用 `dnsleaktest.com` 或 `ipleak.net` 检查外国流量，不应出现本地 China Mobile / China Unicom / China Telecom 系统递归 DNS。
+5. Wi-Fi DNS 恢复“自动”后，用 `dnsleaktest.com`、`ipleak.net` 或之前的检测页检查；外国流量不应出现本地 China Mobile / China Unicom / China Telecom 系统递归 DNS。
 
 如果某个 App 依然有开屏广告，截 **开 App 那几秒的代理日志** 最有用：能看到它究竟是独立广告域名（可以继续稳妥补规则），还是和正常 API 共域名（A 方案就不建议硬拦）。
