@@ -1,3 +1,5 @@
+> **花瓣可视化配置工坊**：部署后打开首页「花瓣 · 小火箭配置工坊」或 `/customize/`，用中文选项定制 DNS、分流、去广告，生成代理链和 STUN 操作清单。[使用说明](docs/shadowrocket/CUSTOMIZE.md#可视化配置工坊)。
+
 <h1 align="center">
   <img src="./public/icons/auto.svg" alt="CloudflareSub Logo" height="40" align="absmiddle" /> CloudflareSub
 </h1>
