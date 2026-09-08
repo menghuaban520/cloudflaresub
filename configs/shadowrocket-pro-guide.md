@@ -1,129 +1,117 @@
-# Shadowrocket Pro 使用说明
+# Shadowrocket Pro v3 使用说明
 
-这份配置针对当前需求设计：**国内常用服务直连、其他流量统一走首页当前节点、住宅节点日常默认使用、Reality/Hysteria2 全部手动切换、广告可开关、尽量减少 DNS / WebRTC 身份泄漏。**
+目标：**国内尽量 DIRECT，国外统一走 Shadowrocket 首页当前节点；住宅/普通 Reality 与 Hysteria2 全部手动切换；不自动换 IP；避免中国移动系统 DNS 出现在外国流量的 DNS 路径里。**
 
-## 导入
+## 主配置
 
-配置直链：
+推荐使用 GitHub Raw：
 
 `https://raw.githubusercontent.com/menghuaban520/cloudflaresub/main/configs/shadowrocket-pro.conf`
 
+Cloudflare 只保留为可选静态镜像：
+
+`https://091329.xyz/shadowrocket-pro.conf`
+
+主逻辑不依赖 Cloudflare Worker 动态代理规则。
+
 Shadowrocket：`配置 -> 右上角 + -> 粘贴 URL -> 下载 -> 点配置使其出现 ✓`
 
-首页把 **全局路由** 设为 **配置**。
+首页 **全局路由** 选择 **配置**。
 
-## 节点怎么选
+## 节点
 
-这版故意不再创建自动测速/国家分组，`FINAL,PROXY` 永远使用 **Shadowrocket 首页当前选中的节点**。
+`FINAL,PROXY` 永远跟随首页当前选中的节点，没有 url-test / fallback / load-balance。
 
-推荐顺序：
+推荐手动顺序：
 
-1. 日常：`住宅IP | 搬瓦工 | 主节点 (Reality)`
-2. 住宅 Reality 抽风：切 `住宅IP | 搬瓦工 | 移动网络备用 (Hysteria2)`
-3. 想要最高速度、不需要住宅属性：切 `搬瓦工 | 主节点 (Reality)`
-4. 普通 Reality 抽风：切 `搬瓦工 | 移动网络备用 (Hysteria2)`
+1. 日常住宅：`住宅IP | 搬瓦工 | 主节点 (Reality)`
+2. 住宅主节点不稳：`住宅IP | 搬瓦工 | 移动网络备用 (Hysteria2)`
+3. 要最高速度：`搬瓦工 | 主节点 (Reality)`
+4. 普通主节点不稳：`搬瓦工 | 移动网络备用 (Hysteria2)`
 
-Shadowrocket 通常会记住首页最后选择的节点，因此只要第一次选住宅主节点，日常就会继续用它。
+不要打开 **全局路由 -> 启用回退**，否则节点失败后 Shadowrocket 可能自行换出口。
 
-**不要打开“全局路由 -> 启用回退”**，否则节点失败后 Shadowrocket 可能自行换到其他节点，出口 IP 会改变。
+## 为什么 v3 国内会更快
+
+旧版为了 DNS 隐私，把默认 DNS 也经代理发到 Google / Cloudflare；同时只使用 ChinaMax 的 Domain 版本。这样一旦国内长尾域名没有及时命中，体验容易出现“国内 App 好像绕住宅出口”的感觉。
+
+v3 改成：
+
+1. 高频国内服务先命中 `china-core.list` -> `DIRECT`
+2. 再按 ChinaMax 维护者建议同时加载 `ChinaMax.list` + `ChinaMax_Domain.list` -> `DIRECT`
+3. 中国 IP -> `GEOIP,CN,DIRECT,no-resolve`
+4. 剩余 -> `FINAL,PROXY`
+
+`ChinaMax.list` 还能补 USER-AGENT / IP 等规则；其 IP 类规则带 `no-resolve`，减少为了规则判断额外触发 DNS。
 
 ## DNS 设计
 
-配置使用 Split DNS：
+Shadowrocket 对已经判定为代理的域名，正常情况下会让代理端处理域名解析。因此 v3 不再让“默认本地 DNS”绕到美国代理出口。
 
-- 已经明确匹配 `DIRECT` 的国内域名：AliDNS + DNSPod 的 DoH，用来保持国内 CDN 调度和速度。
-- 其他需要本地 DNS 的请求：Google DNS + Cloudflare DNS 的 DoH，并用 `#proxy` 通过首页当前节点发送。
-- 正常的代理域名：不强制在本地解析，交给代理端远程解析。
-- `GEOIP,CN` 使用 `no-resolve`，不会为了判断一个未知外国域名是不是中国 IP 而先调用本地 DNS。
-- fallback 不允许回到 iOS/System DNS。
-- 节点服务器自己的域名通过国内加密 DNS 解析，避免“代理还没连上，却为了连接代理先用运营商系统 DNS”的启动问题。
-- 仅劫持常见的境外硬编码 53 端口 DNS，不使用暴力 `*:53`，避免之前那种卡顿/部分 App 无法连接。
+本地需要解析的 DIRECT 流量统一使用：
 
-**DNS 泄漏检测里，DNS 服务器 IP 不需要和代理出口 IP 完全相同。** Google/Cloudflare/代理机房附近递归 DNS 都可能是正常结果。真正需要警惕的是：测试外国站点时仍出现本地运营商的 China Mobile / China Unicom / China Telecom DNS。
+- AliDNS DoH
+- DNSPod / doh.pub DoH
 
-## UDP / Hysteria2
+并设置：
 
-建议：
+- `dns-direct-system = false`
+- `dns-fallback-system = false`
+- `dns-direct-fallback-proxy = false`
 
-`设置 -> UDP -> 启用转发 -> 开启`
+也就是说国内域名解析失败时，不会突然改走住宅代理；同时也不会回退到 iOS / 中国移动系统 DNS。
 
-如果订阅或单个节点有独立的 UDP 转发开关，也保持开启。Hysteria2 本身依赖 UDP；Reality 节点的 UDP 转发也能避免部分 DNS、游戏、QUIC 流量在节点策略不完整时出现异常。
+节点服务器自己的域名也使用国内加密 DNS 做 bootstrap。
 
-主配置**没有**设置 `udp-policy-not-supported-behaviour = REJECT`，也没有屏蔽 QUIC，因为这两个严格选项在移动网络上更容易造成“能打开但卡卡的”或 App 部分连接失败。
+常见 `8.8.8.8 / 1.1.1.1 / 9.9.9.9` 的 53 端口请求仍会被接管，但没有使用暴力 `*:53`。
 
-## WebRTC / STUN（可选严格隐私）
+## 广告
 
-如果你非常在意浏览器/WebRTC 暴露真实公网 IP：
+v3 为了减少规则重复和分流副作用，去掉了“OFF= DIRECT”的广告/隐私代理组。
 
-`设置 -> UDP -> 禁用 STUN -> 开启`
+原因：一个外国 tracker 如果匹配广告/隐私组，而该组被切成 `DIRECT`，它就会绕过 `FINAL,PROXY`，反而破坏“国外统一代理”。
 
-代价是某些语音、视频、WebRTC 通话可能失效。所以日常需要语音/视频时建议保持关闭，只在做严格隐私测试时打开。
+现在使用较轻的固定 `REJECT`：
 
-配置没有写死 `stun-response-ip`，原因也是为了不默认破坏语音/视频功能。
+- AdvertisingLite 的 Domain 规则
+- ACL4SSR BanProgramAD
 
-## 广告开关
+不加载重复的完整 AdvertisingLite + Privacy 大表，也不默认 MITM。
 
-进入当前配置的 **代理分组**：
+## 国外服务防误判
 
-- `🛑 广告拦截`：`REJECT` = 开；`DIRECT` = 关
-- `🍃 应用净化`：`REJECT` = 开；`DIRECT` = 关
-- `🛡️ 隐私跟踪`：默认 `DIRECT`（关）；需要更严格时切 `REJECT`
+`configs/rules/user-proxy.list` 位于 ChinaMax 之前，里面明确包含 OpenAI、Google、YouTube、GitHub、X、Instagram、Reddit、Discord、Telegram、PayPal、Steam 等常见国外服务。
 
-隐私跟踪表比较激进，如果某个 App 登录、验证码、埋点相关功能突然异常，先把它切回 `DIRECT`。
+如果以后发现某个国外站被误直连，把它加到 `user-proxy.list`。
 
-不建议开启 HTTPS 解密/MITM 来追求多拦那一点广告；它会增加证书、兼容性和隐私复杂度。
-
-## 为什么没有直接用 China / ChinaMax 巨型规则
-
-研究后发现这些“国内直连”规则并不等于“地理上属于中国”。例如部分列表会把 AMD、Sony、TeamViewer、BrowserLeaks 等境外服务也归入直连候选，和本需求的 **“国外统一代理”** 冲突。
-
-因此 Pro 版使用：
-
-- `.cn` / 中国 IDN TLD
-- 常见国内 App / 厂商的精简 `china-core.list`
-- `GEOIP,CN,DIRECT,no-resolve`
-- 其余统一 `FINAL,PROXY`
-
-这样比“大而全的直连表”更符合当前需求。
-
-## 自定义例外
-
-强制某域名直连：编辑
+如果某个国内域名误走代理，把它加到：
 
 `configs/rules/user-direct.list`
 
-例如：
+## UDP / Hysteria2
 
-`DOMAIN-SUFFIX,example.cn`
+建议：`设置 -> UDP -> 启用转发 -> 开启`
 
-强制某域名代理：编辑
+主配置不设置 `block-quic`，也不设置 `udp-policy-not-supported-behaviour = REJECT`，避免移动网络下出现 App 半连接、视频/游戏卡顿。
 
-`configs/rules/user-proxy.list`
+## WebRTC / STUN
 
-例如：
+如果做严格隐私测试，可临时：
 
-`DOMAIN-SUFFIX,example.com`
+`设置 -> UDP -> 禁用 STUN -> 开启`
 
-规则每小时自动重新拉取一次；需要立刻生效时，在 Shadowrocket 更新当前配置/规则并重新连接。
+但可能影响网页语音/视频，所以日常不建议一直开。
 
-## 怎么验收
+## 验收
 
-1. 首页选住宅主节点。
-2. 访问 `ipinfo.io`：应该看到住宅出口 IP。
-3. 打开国内 App/网站：在 Shadowrocket 代理日志里应该显示 `DIRECT`。
-4. 打开 `dnsleaktest.com` Extended Test 或 `ipleak.net`：测试流量应为 `PROXY`，DNS 列表不应出现你当前本地运营商的递归 DNS。
-5. 切换到普通 Reality，再重复 2/4：出口应跟着普通节点变化；外国 DNS 路径也会使用当前默认节点。
+更新配置后，断开再连接。
 
-如果 DNS 测试仍出现 China Mobile / China Unicom / China Telecom：
+1. 首页选住宅 Reality。
+2. 打开淘宝、B站、抖音、微信等国内 App。
+3. `数据 -> 代理日志`：应大量看到 `DIRECT`。
+4. 打开 ChatGPT / Google / GitHub：应看到 `PROXY`。
+5. 打开 `dnsleaktest.com` 或 `ipleak.net`：测试站本身应命中 `PROXY`；外国流量不应出现本地 China Mobile / China Unicom / China Telecom 系统递归 DNS。
 
-- 先确认测试站日志命中 `PROXY`；
-- 确认没有叠加其他 DNS 模块；
-- 确认全局路由是“配置”；
-- 确认系统没有同时运行另一个 VPN/DNS Profile；
-- 把 DNS 日志与代理日志截图出来再定位。
+注意：AliDNS / DNSPod 出现在 **国内 DIRECT 的 DNS 日志** 是设计如此，不等于国外代理流量 DNS 泄漏。
 
-## 回退
-
-如果 Pro 版在某个网络环境出现异常，旧的实验版仍保留在：
-
-`https://raw.githubusercontent.com/menghuaban520/cloudflaresub/main/configs/shadowrocket-cn-direct.conf`
+如果国内 App 仍慢，最有价值的是截一张 **数据 -> 代理日志**，看具体哪个域名落到了 `PROXY`；把那个域名补进 `user-direct.list` 会比盲目继续加大规则更准确。
